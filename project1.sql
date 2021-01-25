@@ -1,12 +1,13 @@
 create table patient 
-(patient_id int(255),
+(patient_id int(255) not null,
 ssn char(13),
-name char(25) , 
+name char(25) not null, 
 age int(255),
 address char(100),
 PRIMARY KEY(patient_id)
 );
 
+-- ssn has option to be null some patients may forget ssn cards 
 
 insert into patient values
 
@@ -24,10 +25,10 @@ insert into patient values
 
 create table doctor
 (
-doc_id int(255),
+doc_id int(255) not null,
 ssn char(13),
-name char(25) , 
-speciality char(100),
+name char(25) not null, 
+speciality char(100) not null,
 yearExperience int(255),
 Primary key(doc_id)
 );
@@ -42,7 +43,7 @@ insert into doctor values
 
 ;
 create table pharmacy
-(pharmacy_id char(10),
+(pharmacy_id char(10) not null,
 pharmacy_name char(50) not null,
 address char(100) not null,
 phone char(20),
@@ -54,17 +55,38 @@ insert into pharmacy values
 ('CVS','CVS Pharmacy','Alphabet St.','333-444-5555');
 
 -- price for drug
+
+create table drug 
+(drug_id int(10) not null,
+trade_name char(50),
+formula char(50),
+drug_price float(2),
+primary key (drug_id));
+
+insert into drug values 
+(01,'Parlodel','C32H40BrN5O5',33.91), -- oncology
+(02,'Dostinex','C26H37N5O2',235.63),
+(03,'Comirnaty','BNT162b2',37.00), -- covid
+(04,'Advil','C13H18O2',.31), -- headache
+(05,'Sectral','C18H28N2O4',5.18), -- cardiology
+(06,'Tenormin','C14H22N2O3',13.89),
+(07,'Zyrtec','C21H25ClN2O32HCl',.87), -- allergies
+(08,'Allegra','C32H39NO4',1.94), -- allergies
+(09,'Ibuprofen','C13H18O2',.40), -- children 
+(10,'Amoxicillin','C16H19N3O5S',.49); -- antibiotic
+
 -- date filled
 create table prescription
 (
-prescribe_id int(255),
-patient_id int(255),
-doc_id int(255),
-drug_id int(255),
-prescription_date date,
+prescribe_id int(255) not null,
+patient_id int(255) not null,
+doc_id int(255)not null,
+drug_id int(255) not null,
+prescription_date date ,
 last_filled date,
 quantity int(100),
 pharmacy_id char(10),
+primary key (prescribe_id),
 foreign key(doc_id) references doctor(doc_id),
 foreign key (pharmacy_id) references pharmacy(pharmacy_id),
 foreign key(patient_id) references patient(patient_id),
@@ -86,8 +108,8 @@ insert into prescription values
 --  1 what is patients name join patient table to prescription to get name
 
 create table pharmComp
-(comp_id char(5),
-compName char(30),
+(comp_id char(5) not null,
+compName char(30) not null,
 company_phone char(20),
 primary key(comp_id)
 );
@@ -102,31 +124,13 @@ insert into pharmComp values
 ;
 
 
-create table drug 
-(drug_id int(10),
-trade_name char(50),
-formula char(50),
-drug_price float(2),
-primary key (drug_id));
-
-insert into drug values 
-(01,'Parlodel','C32H40BrN5O5',1.11), -- oncology
-(02,'Dostinex','C26H37N5O2',2.22),
-(03,'Comirnaty','BNT162b2',3.33), -- covid
-(04,'Advil','C13H18O2',4.44), -- headache
-(05,'Sectral','C18H28N2O4',5.55), -- cardiology
-(06,'Tenormin','C14H22N2O3',6.66),
-(07,'Zyrtec','C21H25ClN2O32HCl',7.77), -- allergies
-(08,'Allegra','C32H39NO4',8.88), -- allergies
-(09,'Ibuprofen','C13H18O2',9.99), -- children 
-(10,'Amoxicillin','C16H19N3O5S',10.10); -- antibiotic
 
 -- we decided to normalize supervisor table to keep the supevisors for each company separate
 -- pharamcies don't need the other supervisors from other stores
 -- multi company table for supervisors
 create table supervisor_RIT
 (
-s_id int(255),
+s_id int(255) not null,
 s_name char(15) not null, -- supervisor can change and there needs to be a supervisor 
 primary key(s_id)
 );
@@ -139,7 +143,7 @@ insert into supervisor_RIT values
 
 create table supervisor_WAL
 (
-s_id int(255),
+s_id int(255) not null,
 s_name char(15) not null,-- supervisor can change and there needs to be a supervisor 
 primary key(s_id)
 );
@@ -153,7 +157,7 @@ insert into supervisor_WAL values
 
 create table supervisor_CVS
 (
-s_id int(255),
+s_id int(255) not null,
 s_name char(15) not null, -- supervisor can change and there needs to be a supervisor 
 primary key (s_id)
 );
@@ -170,7 +174,7 @@ insert into supervisor_CVS values
 -- not simplified because the contract needs all these items
 -- text of contract price of drug and agreement on payment to company
 create table contract_CVS
-(contract_id char(100),
+(contract_id char(100) not null,
 start_date date,
 end_date date,
 s_id int(255),
@@ -187,7 +191,7 @@ foreign key(pharmacy_id) references pharmacy(pharmacy_id)
 );
 
 create table contract_RIT
-(contract_id char(100),
+(contract_id char(100) not null,
 start_date date,
 end_date date,
 s_id int(255),
@@ -203,8 +207,9 @@ foreign key(comp_id) references pharmComp(comp_id),
 foreign key(pharmacy_id) references pharmacy(pharmacy_id)
 );
 
+-- markup needs to be dropped since it is dependent on non key column company_id
 create table contract_WAL
-(contract_id char(100),
+(contract_id char(100) not null,
 start_date date,
 end_date date,
 s_id int(255),
