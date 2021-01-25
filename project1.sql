@@ -53,6 +53,8 @@ insert into pharmacy values
 ('RIT','Rite Aid','Elm St.','222-333-4444'),
 ('CVS','CVS Pharmacy','Alphabet St.','333-444-5555');
 
+-- price for drug
+-- date filled
 create table prescription
 (
 prescribe_id int(255),
@@ -60,6 +62,7 @@ patient_id int(255),
 doc_id int(255),
 drug_id int(255),
 prescription_date date,
+last_filled date,
 quantity int(100),
 pharmacy_id char(10),
 foreign key(doc_id) references doctor(doc_id),
@@ -68,17 +71,17 @@ foreign key (pharmacy_id) references pharmacy(pharmacy_id)
 -- pharmacy id for prescripton
 
 insert into prescription values
-(1,1,1,01,'2021/01/01',10,'WAL'),
-(2,2,3,05,'2020/12/21',32,'RIT'),
-(3,9,2,04,'2020/11/20',20,'CVS'),
-(4,3,3,06,'2019/01/21',10,'CVS'),
-(5,6,1,02, '2019/04/10',5,'WAL'),
-(6,4,4,03,'2020/05/12',30,'RIT'),
-(7,5,2,09,'2021/01/05',5,'RIT'),
-(8,8,1,10,'2019/12/12',50,'WAL'),
-(9,7,5,07,'2020/09/01',20,'CVS')
+(1,1,1,01,'2021/01/01','2021/01/01',10,'WAL'),
+(2,2,3,05,'2020/12/21','2020/12/21',32,'RIT'),
+(3,9,2,04,'2020/11/20','2020/11/20',20,'RIT'),
+(4,3,3,06,'2019/01/21','2019/01/21',10,'RIT'),
+(5,6,1,02, '2019/04/10', '2019/04/10',5,'WAL'),
+(6,4,4,03,'2020/05/12','2020/05/12',30,'WAL'),
+(7,5,2,09,'2021/01/05','2021/01/05',5,'CVS'),
+(8,8,1,10,'2019/12/12','2019/12/12',50,'CVS'),
+(9,7,5,07,'2020/09/01','2020/09/01',20,'CVS')
 ;
--- what is patients name join patient table to prescription to get name
+--  1 what is patients name join patient table to prescription to get name
 
 create table pharmComp
 (comp_id char(5),
@@ -88,12 +91,13 @@ company_phone char(20)
 
 insert into pharmComp values
 
-('JJ',"Johnson & Johnson",'1-866-565-2873'),
+('JJ',"Johnson & Johnson",'1-866-565-2873'), -- ? .25 @ W  ? .5 @ RIT ? .75 @ CVS
 ('PFZ',"Pfizer",'1-800-879-3477'),
 ('MD',"Moderna",'1‑866‑663‑3762'),
 ('NV',"Novartis",'1-888-669-6682'),
 ('MK',"Merck",'1-800-444-2080')
 ;
+
 
 create table drug 
 (drug_id int(10),
@@ -113,13 +117,28 @@ insert into drug values
 (09,'Ibuprofen','C13H18O2'), -- children 
 (10,'Amoxicillin','C16H19N3O5S'); -- antibiotic
 
+-- we decided to normalize supervisor table to keep the supevisors for each company separate
+-- pharamcies don't need the other supervisors from other stores
+-- multi company table for supervisors
+create table supervisor_RIT
+(
+s_id int(255),
+s_name char(15) not null -- supervisor can change and there needs to be a supervisor 
 
+);
 
-create table supervisor
+create table supervisor_WAL
 (
 s_id int(255),
 s_name char(15) not null -- supervisor can change and there needs to be a supervisor 
 );
+
+create table supervisor_CVS
+(
+s_id int(255),
+s_name char(15) not null -- supervisor can change and there needs to be a supervisor 
+);
+
 
 insert into supervisor values
 
@@ -130,19 +149,24 @@ insert into supervisor values
 
 
 -- not simplified because the contract needs all these items
+-- text of contract price of drug and agreement on payment to company
 create table contract
-(contract_id int(255),
+(contract_id char(100),
 start_date date,
 end_date date,
 s_id int(255),
-withComp int(255),
-pharmacy_id int(255),
+comp_id char(10),
+pharmacy_id char(10),
 drug_id int(255),
+con_text char(100),
 foreign key (drug_id) references drugs(drug_id),
 foreign key (s_id) references supervisor(s_id),
-foreign key(withComp) references pharmComp(comp_id),
+foreign key(comp_id) references pharmComp(comp_id),
 foreign key(pharmacy_id) references pharmacy(pharmacy_id)
 );
 
-
-
+-- 2 Where is the prescription being made? Prescription -> Pharmacy -> Contract
+insert into contract values
+('1W','2021/01/10','2023/01/10',1,'JJ','WAL',01,'Walgreens agrees to pay for drug @ marginal cost and plans to sell at Markup .25' )
+-- 
+;
